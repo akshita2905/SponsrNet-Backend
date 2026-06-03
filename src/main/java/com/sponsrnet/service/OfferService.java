@@ -46,45 +46,44 @@ public class OfferService {
 
     public Offer acceptOffer(Long offerId) {
 
-    Offer offer = offerRepository.findById(offerId)
-            .orElseThrow(() -> new RuntimeException("Offer not found"));
+        Offer offer = offerRepository.findById(offerId)
+                .orElseThrow(() -> new RuntimeException("Offer not found"));
 
-    if ("ACCEPTED".equals(offer.getStatus())) {
-        throw new RuntimeException("Offer already accepted");
+        if ("ACCEPTED".equals(offer.getStatus())) {
+            throw new RuntimeException("Offer already accepted");
+        }
+
+        if ("REJECTED".equals(offer.getStatus())) {
+            throw new RuntimeException("Rejected offer cannot be accepted");
+        }
+
+        offer.setStatus("ACCEPTED");
+
+        Opportunity opportunity = offer.getOpportunity();
+
+        opportunity.setCurrentAmount(
+                opportunity.getCurrentAmount() + offer.getAmount());
+
+        opportunityRepository.save(opportunity);
+
+        return offerRepository.save(offer);
     }
-
-    if ("REJECTED".equals(offer.getStatus())) {
-        throw new RuntimeException("Rejected offer cannot be accepted");
-    }
-
-    offer.setStatus("ACCEPTED");
-
-    Opportunity opportunity = offer.getOpportunity();
-
-    opportunity.setCurrentAmount(
-            opportunity.getCurrentAmount() + offer.getAmount()
-    );
-
-    opportunityRepository.save(opportunity);
-
-    return offerRepository.save(offer);
-}
 
     public Offer rejectOffer(Long offerId) {
 
-    Offer offer = offerRepository.findById(offerId)
-            .orElseThrow(() -> new RuntimeException("Offer not found"));
+        Offer offer = offerRepository.findById(offerId)
+                .orElseThrow(() -> new RuntimeException("Offer not found"));
 
-    if ("ACCEPTED".equals(offer.getStatus())) {
-        throw new RuntimeException("Accepted offer cannot be rejected");
+        if ("ACCEPTED".equals(offer.getStatus())) {
+            throw new RuntimeException("Accepted offer cannot be rejected");
+        }
+
+        if ("REJECTED".equals(offer.getStatus())) {
+            throw new RuntimeException("Offer already rejected");
+        }
+
+        offer.setStatus("REJECTED");
+
+        return offerRepository.save(offer);
     }
-
-    if ("REJECTED".equals(offer.getStatus())) {
-        throw new RuntimeException("Offer already rejected");
-    }
-
-    offer.setStatus("REJECTED");
-
-    return offerRepository.save(offer);
-}
 }
