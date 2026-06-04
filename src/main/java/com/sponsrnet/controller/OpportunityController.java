@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sponsrnet.entity.Opportunity;
+import com.sponsrnet.entity.User;
 import com.sponsrnet.service.OpportunityService;
 
 @RestController
@@ -44,4 +45,15 @@ public class OpportunityController {
         opportunityService.deleteOpportunity(id);
         return "Opportunity deleted successfully";
     }
+
+    @GetMapping("/organizer/{organizerId}")
+public List<Opportunity> getOpportunitiesByOrganizer(
+        @PathVariable Long organizerId) {
+
+    User organizer = new User();
+    organizer.setId(organizerId);
+
+    return opportunityService.getOpportunitiesByOrganizer(
+            organizer);
+}
 }

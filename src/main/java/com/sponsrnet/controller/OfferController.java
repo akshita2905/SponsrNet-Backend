@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sponsrnet.entity.Offer;
+import com.sponsrnet.entity.User;
 import com.sponsrnet.service.OfferService;
 
 @RestController
@@ -55,4 +56,16 @@ public class OfferController {
     public Offer rejectOffer(@PathVariable Long id) {
         return offerService.rejectOffer(id);
     }
+
+    @GetMapping("/sponsor/{sponsorId}")
+public List<Offer> getOffersBySponsor(
+        @PathVariable Long sponsorId) {
+
+    User sponsor = new User();
+    sponsor.setId(sponsorId);
+
+    return offerService.getOffersBySponsor(sponsor);
+}
+
+
 }
