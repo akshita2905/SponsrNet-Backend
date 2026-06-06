@@ -1,6 +1,8 @@
 package com.sponsrnet.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+
 
 @Entity
 @Table(name = "users")
@@ -20,6 +22,12 @@ public class User {
     private String photoUrl;
 
     private String role;
+
+@Pattern(
+    regexp = "(^$|\\d{10})",
+    message = "Phone number must contain exactly 10 digits"
+)
+private String phoneNumber;
 
     public User() {
     }
@@ -81,4 +89,12 @@ public class User {
     public void setRole(String role) {
         this.role = role;
     }
+
+    public String getPhoneNumber() {
+    return phoneNumber;
+}
+
+public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+}
 }

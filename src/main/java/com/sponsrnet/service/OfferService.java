@@ -20,9 +20,23 @@ public class OfferService {
     @Autowired
     private OpportunityRepository opportunityRepository;
 
-    public Offer saveOffer(Offer offer) {
-        return offerRepository.save(offer);
+   public Offer saveOffer(Offer offer) {
+
+    Optional<Offer> existingOffer =
+        offerRepository.findByOpportunityAndSponsor(
+            offer.getOpportunity(),
+            offer.getSponsor()
+        );
+
+    if (existingOffer.isPresent()) {
+
+        throw new RuntimeException(
+            "You have already submitted an offer for this opportunity"
+        );
     }
+
+    return offerRepository.save(offer);
+}
 
     public List<Offer> getAllOffers() {
         return offerRepository.findAll();
@@ -62,11 +76,28 @@ public class OfferService {
         Opportunity opportunity = offer.getOpportunity();
 
         opportunity.setCurrentAmount(
-                opportunity.getCurrentAmount() + offer.getAmount());
+    opportunity.getCurrentAmount()
+        + offer.getAmount()
+);
 
-        opportunityRepository.save(opportunity);
+if (
+    opportunity.getCurrentAmount()
+        >=
+    opportunity.getTargetAmount()
+) {
 
-        return offerRepository.save(offer);
+    opportunity.setStatus(
+        "FUNDED"
+    );
+}
+
+opportunityRepository.save(
+    opportunity
+);
+
+return offerRepository.save(
+    offer
+);
     }
 
     public Offer rejectOffer(Long offerId) {

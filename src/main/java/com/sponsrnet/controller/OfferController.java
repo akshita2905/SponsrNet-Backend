@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sponsrnet.entity.Offer;
+import com.sponsrnet.entity.Opportunity;
 import com.sponsrnet.entity.User;
+import com.sponsrnet.repository.UserRepository;
 import com.sponsrnet.service.OfferService;
 
 @RestController
@@ -25,11 +27,37 @@ public class OfferController {
 
     @Autowired
     private OfferService offerService;
+    @Autowired
+private UserRepository userRepository;
 
     @PostMapping
-    public Offer createOffer(@RequestBody Offer offer) {
-        return offerService.saveOffer(offer);
+public Offer createOffer(
+        @RequestBody Offer offer) {
+
+    User sponsor =
+            userRepository.findById(
+                    offer.getSponsor().getId()
+            )
+            .orElseThrow(() ->
+                    new RuntimeException(
+                            "User not found"
+                    ));
+
+    if (
+            !"SPONSOR".equals(
+                    sponsor.getRole()
+            )
+    ) {
+
+        throw new RuntimeException(
+                "Only sponsors can submit offers"
+        );
     }
+
+    return offerService.saveOffer(
+            offer
+    );
+}
 
     @GetMapping
     public List<Offer> getAllOffers() {
@@ -48,14 +76,60 @@ public class OfferController {
     }
 
     @PutMapping("/{id}/accept")
-    public Offer acceptOffer(@PathVariable Long id) {
-        return offerService.acceptOffer(id);
+public Offer acceptOffer(
+        @PathVariable Long id,
+        @RequestBody User user) {
+
+    User organizer =
+            userRepository.findById(
+                    user.getId()
+            )
+            .orElseThrow(() ->
+                    new RuntimeException(
+                            "User not found"
+                    ));
+
+    if (
+            !"ORGANIZER".equals(
+                    organizer.getRole()
+            )
+    ) {
+
+        throw new RuntimeException(
+                "Only organizers can accept offers"
+        );
     }
 
+    return offerService.acceptOffer(id);
+}
+
     @PutMapping("/{id}/reject")
-    public Offer rejectOffer(@PathVariable Long id) {
-        return offerService.rejectOffer(id);
+public Offer rejectOffer(
+        @PathVariable Long id,
+        @RequestBody User user) {
+
+    User organizer =
+            userRepository.findById(
+                    user.getId()
+            )
+            .orElseThrow(() ->
+                    new RuntimeException(
+                            "User not found"
+                    ));
+
+    if (
+            !"ORGANIZER".equals(
+                    organizer.getRole()
+            )
+    ) {
+
+        throw new RuntimeException(
+                "Only organizers can reject offers"
+        );
     }
+
+    return offerService.rejectOffer(id);
+}
 
     @GetMapping("/sponsor/{sponsorId}")
 public List<Offer> getOffersBySponsor(
@@ -67,5 +141,17 @@ public List<Offer> getOffersBySponsor(
     return offerService.getOffersBySponsor(sponsor);
 }
 
+@GetMapping("/opportunity/{opportunityId}")
+public List<Offer> getOffersByOpportunity(
+        @PathVariable Long opportunityId) {
+
+    Opportunity opportunity = new Opportunity();
+
+    opportunity.setId(opportunityId);
+
+    return offerService.getOffersByOpportunity(
+            opportunity
+    );
+}
 
 }

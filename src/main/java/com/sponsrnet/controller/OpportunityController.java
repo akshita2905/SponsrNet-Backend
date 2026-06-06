@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sponsrnet.entity.Opportunity;
 import com.sponsrnet.entity.User;
+import com.sponsrnet.repository.UserRepository;
 import com.sponsrnet.service.OpportunityService;
 
 @RestController
@@ -24,11 +26,37 @@ public class OpportunityController {
 
     @Autowired
     private OpportunityService opportunityService;
+    @Autowired
+private UserRepository userRepository;
 
     @PostMapping
-    public Opportunity createOpportunity(@RequestBody Opportunity opportunity) {
-        return opportunityService.saveOpportunity(opportunity);
+public Opportunity createOpportunity(
+        @RequestBody Opportunity opportunity) {
+
+    User organizer =
+            userRepository.findById(
+                    opportunity.getOrganizer().getId()
+            )
+            .orElseThrow(() ->
+                    new RuntimeException(
+                            "User not found"
+                    ));
+
+    if (
+            !"ORGANIZER".equals(
+                    organizer.getRole()
+            )
+    ) {
+
+        throw new RuntimeException(
+                "Only organizers can create opportunities"
+        );
     }
+
+    return opportunityService.saveOpportunity(
+            opportunity
+    );
+}
 
     @GetMapping
     public List<Opportunity> getAllOpportunities() {
@@ -55,5 +83,36 @@ public List<Opportunity> getOpportunitiesByOrganizer(
 
     return opportunityService.getOpportunitiesByOrganizer(
             organizer);
+}
+
+@PutMapping("/{id}")
+public Opportunity updateOpportunity(
+        @PathVariable Long id,
+        @RequestBody Opportunity opportunity) {
+
+    User organizer =
+            userRepository.findById(
+                    opportunity.getOrganizer().getId()
+            )
+            .orElseThrow(() ->
+                    new RuntimeException(
+                            "User not found"
+                    ));
+
+    if (
+            !"ORGANIZER".equals(
+                    organizer.getRole()
+            )
+    ) {
+
+        throw new RuntimeException(
+                "Only organizers can edit opportunities"
+        );
+    }
+
+    return opportunityService.updateOpportunity(
+            id,
+            opportunity
+    );
 }
 }

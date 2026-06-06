@@ -1,5 +1,7 @@
 package com.sponsrnet.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +30,7 @@ public class Opportunity {
 
     private Double currentAmount;
 
-    private String deadline;
+    private LocalDate deadline;
 
     private String status;
 
@@ -41,7 +43,7 @@ public class Opportunity {
 
     public Opportunity(Long id, String title, String description,
                        String category, Double targetAmount,
-                       Double currentAmount, String deadline,
+                       Double currentAmount, LocalDate deadline,
                        String status, User organizer) {
         this.id = id;
         this.title = title;
@@ -102,11 +104,11 @@ public class Opportunity {
         this.currentAmount = currentAmount;
     }
 
-    public String getDeadline() {
+    public LocalDate getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(String deadline) {
+    public void setDeadline(LocalDate deadline) {
         this.deadline = deadline;
     }
 
